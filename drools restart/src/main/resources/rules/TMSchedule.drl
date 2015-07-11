@@ -1,0 +1,136 @@
+//created on: Jun 7, 2015
+package com.schedule.test
+
+import com.schedule.test.Member;
+import com.schedule.test.Schedule;
+
+//declare any global variables here
+
+rule "Assign a Toastmaster"
+
+    when
+    	$member : Member (numberOfMeetingsAttended > 5,
+    		numberOfSpeeches > 5,
+    		numberTimesAsGeneralEvaluator > 5,
+    		recentlyServedInRole("Toastmaster") != true)
+		$schedule : Schedule (toastmaster == null,
+			memberAlreadyAssigned($member) == false)
+    then
+    	modify ($schedule) { setToastmaster($member) };
+    	modify ($member) { addPreviousRole("Toastmaster") };
+        System.out.println("Setting " + $member.getName() + " as Toastmaster");
+
+end
+
+rule "Assign a General Evaluator"
+    when
+        $member : Member(numberOfMeetingsAttended > 3,
+        	numberOfSpeeches > 3,
+        	numberOfEvaluations > 3,
+        	recentlyServedInRole("General Evaluator") != true)
+        $schedule : Schedule (generalEvaluator == null,
+			memberAlreadyAssigned($member) == false)
+    then
+        modify ($schedule) { setGeneralEvaluator($member) };
+        modify ($member) { addPreviousRole("General Evaluator") };
+        //System.out.println("Setting " + $member.getName() + " as General Evaluator");
+
+end
+
+rule "Assign a Topics Master"
+	when
+		$member : Member (numberOfMeetingsAttended > 3,
+			recentlyServedInRole("TopicMaster") != true)
+		$schedule : Schedule (topicMaster == null,
+			memberAlreadyAssigned($member) == false)
+	then
+		modify ($schedule) { setTopicMaster($member) };
+		modify ($member) { addPreviousRole("TopicMaster") };
+		//System.out.println("Setting " + $member.getName() + " as Topicsmaster");
+end
+
+rule "Assign Speaker 1"
+	when
+		$member : Member (numberOfMeetingsAttended > 0,
+			recentlyServedInRole("Speaker") != true)
+		$schedule : Schedule (speakerOne == null,
+			memberAlreadyAssigned($member) == false)
+	then
+		modify ($schedule) { setSpeakerOne($member) };
+		modify ($member) { addPreviousRole("Speaker") };
+		//System.out.println("Setting " + $member.getName() + " as Speaker 1");
+end
+
+rule "Assign Evaluator 1"
+	when
+		$member : Member(numberOfMeetingsAttended > 0,
+			numberOfSpeeches > 3,
+			recentlyServedInRole("Evaluator") != true)
+		$schedule : Schedule (evaluatorOne == null,
+			memberAlreadyAssigned($member) == false)
+	then
+		modify ($schedule) { setEvaluatorOne($member) };
+		modify ($member) { addPreviousRole("Evaluator") };
+		//System.out.println("Setting " + $member.getName() + " as Evaluator 1");
+end
+
+rule "Assign Speaker 2"
+	when
+		$member : Member (numberOfMeetingsAttended > 0,
+			recentlyServedInRole("Speaker") != true)
+		$schedule : Schedule (speakerTwo == null,
+			memberAlreadyAssigned($member) == false)
+	then
+		modify ($schedule) { setSpeakerTwo($member) };
+		modify ($member) { addPreviousRole("Speaker") };
+		//System.out.println("Setting " + $member.getName() + " as Speakder 2");
+end
+
+rule "Assign Evaluator 2"
+	when
+		$member : Member(numberOfMeetingsAttended > 0,
+			numberOfSpeeches > 3,
+			recentlyServedInRole("Evaluator") != true)
+		$schedule : Schedule (evaluatorTwo == null,
+			memberAlreadyAssigned($member) == false)
+	then
+		modify ($schedule) { setEvaluatorTwo($member) };
+		modify ($member) { addPreviousRole("Evaluator") };
+		//System.out.println("Setting " + $member.getName() + " as Evaluator 2");
+end
+
+rule "Assign a Grammarian"
+	when
+		$member : Member (numberOfMeetingsAttended > 0,
+			recentlyServedInRole("Grammarian") != true)
+		$schedule : Schedule (grammarian == null,
+			memberAlreadyAssigned($member) == false)
+	then
+		modify ($schedule) { setGrammarian($member) };
+		modify ($member) { addPreviousRole("Grammarian") };
+		//System.out.println("Setting " + $member.getName() + " as Grammarian");
+end
+
+rule "Assign a Timer"
+	when
+		$member : Member (numberOfMeetingsAttended > 0,
+			recentlyServedInRole("Timer") != true)
+		$schedule : Schedule (timer == null,
+			memberAlreadyAssigned($member) == false)
+	then
+		modify ($schedule) { setTimer($member) };
+		modify ($member) { addPreviousRole("Timer") };
+		//System.out.println("Setting " + $member.getName() + " as Timer");
+end
+
+rule "Assign ahcounter"
+	when
+		$member : Member (numberOfMeetingsAttended > 0,
+			recentlyServedInRole("Ah Counter") != true)
+		$schedule : Schedule (ahCounter == null,
+			memberAlreadyAssigned($member) == false)
+	then
+		modify ($schedule) { setAhCounter($member) };
+		modify ($member) { addPreviousRole("Ah Counter") };
+		//System.out.println("Setting " + $member.getName() + " as Ahcounter");
+end
