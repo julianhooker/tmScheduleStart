@@ -32,14 +32,14 @@ public class Schedule {
 		}
 	}
 	
-	public boolean memberNotAssigned(Member member) {
-		boolean assigned = false;
-		
-		if (toastmaster != null && member.getName().equals(toastmaster.getName())) return true;
-		if (generalEvaluator != null && member.getName().equals(generalEvaluator.getName())) return true;
-		
-		return assigned; 
-	}
+//	public boolean memberNotAssigned(Member member) {
+//		boolean assigned = false;
+//		
+//		if (toastmaster != null && member.getName().equals(toastmaster.getName())) return true;
+//		if (generalEvaluator != null && member.getName().equals(generalEvaluator.getName())) return true;
+//		
+//		return assigned; 
+//	}
 	
 	public boolean memberAlreadyAssigned (Member member) {	
 		if (toastmaster == member) return true;
@@ -55,6 +55,23 @@ public class Schedule {
 		
 		return false;
 	}
+//	
+//	public String getAssignment (Member member) {
+//		String memberName = member.getName();
+//		
+//		if (memberName.equals(toastmaster.getName())) return "Toastmaster";
+//		if (memberName.equals(generalEvaluator.getName())) return "General Evaluator";
+//		if (memberName.equals(topicMaster.getName())) return "Topic Master"; 
+//		if (memberName.equals(speakerOne.getName())) return "Speaker";
+//		if (memberName.equals(evaluatorOne.getName())) return "Evaluator";
+//		if (memberName.equals(speakerTwo.getName())) return "Speaker";
+//		if (memberName.equals(evaluatorTwo.getName())) return "Evaluator";
+//		if (memberName.equals(grammarian.getName())) return "Grammarian";
+//		if (memberName.equals(ahCounter.getName())) return "Ah Counter";
+//		if (memberName.equals(timer.getName())) return "Timer";
+//		
+//		return null; 
+//	}
 	
 //	public void clearSchedule() {
 //		this.ahCounter = null;
@@ -95,7 +112,7 @@ public class Schedule {
 		if (evaluatorOne != null)
 			System.out.println("Evaluator 1: " + evaluatorOne.getName());
 		else
-			System.out.println("Evaluagor 1: ** unassigned **");
+			System.out.println("Evaluator 1: ** unassigned **");
 		
 		if (speakerTwo != null)
 			System.out.println("Speaker 2: " + speakerTwo.getName());

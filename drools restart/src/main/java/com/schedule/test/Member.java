@@ -1,15 +1,34 @@
 package com.schedule.test;
 
+import mongo.MongoClientProvider;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
+
+import org.bson.Document;
+
+import com.mongodb.MongoClient;
+import com.mongodb.client.AggregateIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+
+import static java.util.Arrays.asList;
 
 public class Member {
 	private String firstName;
 	private String lastName;
 
-	private int numberOfSpeeches = 0;
-	private int numberOfEvaluations = 0;
-	private int numberTimesAsGeneralEvaluator = 0;
-	private int numberOfMeetingsAttended = 0;
+	private int generalEvaluatorCount = 0;
+	private int topicMasterCount = 0;
+	private int speechesCount = 0;
+	private int evaluatorCount = 0;
+	private int grammarianCount = 0;
+	private int ahCounterCount = 0;
+	private int timerCount = 0;
 	
 	private ArrayList<String> previousRole = new ArrayList<String> ();
 	
@@ -29,19 +48,181 @@ public class Member {
 			previousRole.remove(0);
 		} 
 	}
-	
-	public int getNumberOfSpeeches() {
-		return numberOfSpeeches;
-	}
 
-	public void setNumberOfSpeeches(int numberOfSpeeches) {
-		this.numberOfSpeeches = numberOfSpeeches;
-	}
+	// Constructors
 	
 	public Member (String firstName, String lastName) {
 		this.firstName = firstName;
 		this.lastName = lastName;
+		
+		//if (this.getFirstName().equals("Julian"))
+			getServiceNumbers ();
 	}
+	
+	public Member (String fullname) {
+		this.firstName = fullname.substring(0, fullname.indexOf(" ")).trim();
+		this.lastName = fullname.substring(fullname.indexOf(" "), fullname.length()).trim();
+		
+		//if (this.getFirstName().equals("Julian"))
+			getServiceNumbers ();
+	}
+	
+	private void getServiceNumbers () {
+		MongoClient mongoClient = new MongoClient("localhost", 27017);
+		MongoDatabase db = mongoClient.getDatabase("julian");
+		
+		AggregateIterable<Document> iterable;
+		
+		// Number of times as General Evaluator
+		iterable = db.getCollection("tmschedule").aggregate(asList(
+		        new Document("$match", new Document("general evaluator", this.getName())),
+		        new Document("$group", new Document("_id", "$general evaluator").append("count", new Document("$sum", 1)))
+		        ));
+		
+		if (iterable.first() != null)
+			this.generalEvaluatorCount = iterable.first().getInteger("count");
+		
+		// Number of times as Topics Master
+		iterable = db.getCollection("tmschedule").aggregate(asList(
+		        new Document("$match", new Document("topic master", this.getName())),
+		        new Document("$group", new Document("_id", "$id").append("count", new Document("$sum", 1)))
+		        ));
+		
+		if (iterable.first() != null)
+			this.topicMasterCount = iterable.first().getInteger("count");
+		
+		// Number of times as a Speaker
+		iterable = db.getCollection("tmschedule").aggregate(asList(
+				new Document("$match", new Document("speaker.name", this.getName())),
+				new Document("$group", new Document("_id", "$id").append("count", new Document ("$sum", 1)))
+				));
+
+		if (iterable.first() != null)
+			this.speechesCount = iterable.first().getInteger("count");
+		
+		// Number of times as an Evaluator
+		iterable = db.getCollection("tmschedule").aggregate(asList(
+				new Document("$match", new Document("evaluator.name", this.getName())),
+				new Document("$group", new Document("_id", "$id").append("count", new Document ("$sum", 1)))
+				));
+
+		if (iterable.first() != null)
+			this.evaluatorCount = iterable.first().getInteger("count");
+
+		// Number of times as a Grammarian
+		iterable = db.getCollection("tmschedule").aggregate(asList(
+				new Document("$match", new Document("grammarian", this.getName())),
+				new Document("$group", new Document("_id", "$grammarian").append("count", new Document ("$sum", 1)))
+				));
+
+		if (iterable.first() != null)
+			this.grammarianCount = iterable.first().getInteger("count");
+
+		// Number of times as an Ah Counter
+		iterable = db.getCollection("tmschedule").aggregate(asList(
+				new Document("$match", new Document("ah counter", this.getName())),
+				new Document("$group", new Document("_id", "$ah counter").append("count", new Document ("$sum", 1)))
+				));
+
+		if (iterable.first() != null)
+			this.ahCounterCount = iterable.first().getInteger("count");
+
+		// Number of times as a Timer
+		iterable = db.getCollection("tmschedule").aggregate(asList(
+				new Document("$match", new Document("timer", this.getName())),
+				new Document("$group", new Document("_id", "$timer").append("count", new Document ("$sum", 1)))
+				));
+
+		if (iterable.first() != null)
+			this.timerCount = iterable.first().getInteger("count");
+		
+		//MongoCollection<Document> collection = db.getCollection("tmschedule");
+
+		MongoCollection<Document> collection = MongoClientProvider.getCollection();
+		
+		// Now look at the previous jobs worked by this guy, but we are only going to look at the last 3 weeks
+		LocalDate ld = LocalDate.now().minusWeeks(3);
+		Instant instant = ld.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
+		Date date = Date.from(instant);
+		
+		System.out.println(date);
+				
+		// Now, we need to look at the previous working positions
+
+		MongoCursor<Document> cursor;  
+		
+		// Check for the roles
+		
+		// Toastmaster
+		cursor = collection.find(
+				new Document ("meeting date", new Document ("$gt", date))
+				.append("toastmaster", this.getName())
+				).iterator();
+		
+		if (cursor.hasNext()) this.addPreviousRole("toastmaster");
+		
+		// general evaluator
+		cursor = collection.find(
+				new Document ("meeting date", new Document ("$gt", date))
+				.append("general evaluator", this.getName())
+				).iterator();
+		
+		if (cursor.hasNext()) this.addPreviousRole("general evaluator");
+
+		// topic master
+		cursor = collection.find(
+				new Document ("meeting date", new Document ("$gt", date))
+				.append("topic master", this.getName())
+				).iterator();
+		
+		if (cursor.hasNext()) this.addPreviousRole("topic master");
+		
+		// speaker
+		cursor = collection.find(
+				new Document ("meeting date", new Document ("$gt", date))
+				.append("speaker.name", this.getName())
+				).iterator();
+		
+		if (cursor.hasNext()) this.addPreviousRole("speaker");
+					
+		// evaluator
+		cursor = collection.find(
+				new Document ("meeting date", new Document ("$gt", date))
+				.append("evaluator.name", this.getName())
+				).iterator();
+		
+		if (cursor.hasNext()) this.addPreviousRole("evaluator");
+		
+		// grammarian
+		cursor = collection.find(
+				new Document ("meeting date", new Document ("$gt", date))
+				.append("grammarian", this.getName())
+				).iterator();
+		
+		if (cursor.hasNext()) this.addPreviousRole("grammarian");
+			
+		// ah counter
+		cursor = collection.find(
+				new Document ("meeting date", new Document ("$gt", date))
+				.append("ah counter", this.getName())
+				).iterator();
+		
+		if (cursor.hasNext()) this.addPreviousRole("ah counter");
+		
+		// timer
+		cursor = collection.find(
+				new Document ("meeting date", new Document ("$gt", date))
+				.append("timer", this.getName())
+				).iterator();
+		
+		if (cursor.hasNext()) this.addPreviousRole("timer");
+	
+//		mongoClient.close();
+		
+		System.out.println("End member " + this.getName());
+	}
+	
+	// Getters and setters
 
 	public String getFirstName() {
 		return firstName;
@@ -63,28 +244,67 @@ public class Member {
 		return this.getFirstName() + " " + this.getLastName();
 	}
 
-	public int getNumberOfEvaluations() {
-		return numberOfEvaluations;
+	public int getGeneralEvaluatorCount() {
+		return generalEvaluatorCount;
 	}
 
-	public void setNumberOfEvaluations(int numberOfEvaluations) {
-		this.numberOfEvaluations = numberOfEvaluations;
+	public void setGeneralEvaluatorCount(int generalEvaluatorCount) {
+		this.generalEvaluatorCount = generalEvaluatorCount;
 	}
 
-	public int getNumberTimesAsGeneralEvaluator() {
-		return numberTimesAsGeneralEvaluator;
+	public int getTopicMasterCount() {
+		return topicMasterCount;
 	}
 
-	public void setNumberTimesAsGeneralEvaluator(
-			int numberTimesAsGeneralEvaluator) {
-		this.numberTimesAsGeneralEvaluator = numberTimesAsGeneralEvaluator;
+	public void setTopicMasterCount(int topicMasterCount) {
+		this.topicMasterCount = topicMasterCount;
 	}
 
-	public int getNumberOfMeetingsAttended() {
-		return numberOfMeetingsAttended;
+	public int getSpeechesCount() {
+		return speechesCount;
 	}
 
-	public void setNumberOfMeetingsAttended(int numberOfMeetingsAttended) {
-		this.numberOfMeetingsAttended = numberOfMeetingsAttended;
+	public void setSpeechesCount(int speechesCount) {
+		this.speechesCount = speechesCount;
+	}
+
+	public int getGrammarianCount() {
+		return grammarianCount;
+	}
+
+	public void setGrammarianCount(int grammarianCount) {
+		this.grammarianCount = grammarianCount;
+	}
+
+	public int getAhCounterCount() {
+		return ahCounterCount;
+	}
+
+	public void setAhCounterCount(int ahCounterCount) {
+		this.ahCounterCount = ahCounterCount;
+	}
+
+	public int getTimerCount() {
+		return timerCount;
+	}
+
+	public void setTimerCount(int timerCount) {
+		this.timerCount = timerCount;
+	}
+
+	public ArrayList<String> getPreviousRole() {
+		return previousRole;
+	}
+
+	public void setPreviousRole(ArrayList<String> previousRole) {
+		this.previousRole = previousRole;
+	}
+
+	public int getEvaluatorCount() {
+		return evaluatorCount;
+	}
+
+	public void setEvaluatorCount(int evaluatorCount) {
+		this.evaluatorCount = evaluatorCount;
 	}
 }
