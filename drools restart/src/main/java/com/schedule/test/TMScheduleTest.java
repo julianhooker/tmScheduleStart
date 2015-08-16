@@ -1,17 +1,13 @@
 package com.schedule.test;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.bson.Document;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
-
-import com.mongodb.Block;
-import com.mongodb.MongoClient;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoDatabase;
 
 public class TMScheduleTest {
 	
@@ -20,29 +16,38 @@ public class TMScheduleTest {
         	
         	KieServices kieServices = KieServices.Factory.get();
         	KieContainer kContainer = kieServices.getKieClasspathContainer();
-        	KieSession ksession = kContainer.newKieSession("ksession-rules");
         	
+        	// Create a collection of new schedules
+        	ArrayList<Schedule> schedules = new ArrayList<Schedule> ();
+        	
+        	// Get a list of members
         	ArrayList<Member> members = getMembers();
-        	Collections.shuffle(members);
         	
-        	for (Member m: members) {
-        		ksession.insert(m);
-        	}
-        	
-//        	getPastSchedules();
-        	
-        	for (int i = 1; i < 10; i++) {
-        		Schedule schedule = new Schedule (i + "/11/2015");
-            	
+        	// Loop through a date range
+        	for (LocalDate ld = LocalDate.of(2015, 8, 12); ld.isBefore(LocalDate.of(2015, 10, 31)); ld = ld.plusWeeks(1)) {
+        		// Create the new rules space
+        		KieSession ksession = kContainer.newKieSession("ksession-rules");
+        		
+        		// Create a schedule for this date and add it to the rules space
+        		Schedule schedule = new Schedule (ld.format(DateTimeFormatter.ofPattern("M/dd/yyyy")));
         		ksession.insert(schedule);
+        		
+        		// Shuffle the members to make them random
+            	Collections.shuffle(members);
+            	
+            	// Add the members to the rule KIE space
+            	for (Member m: members) {
+            		ksession.insert(m);
+            	}
+        		
+            	// Fire the rules
             	ksession.fireAllRules();
-            	schedule.printSchedule();
+            	
+            	// Add the newly created schedule to the collections of schedules. 
+            	schedules.add(schedule);
         	}
         	
-        	ksession.fireAllRules();
-        	
-        	ksession.dispose();
-        	
+        	schedules.forEach(schedule -> schedule.printSchedule());
         } catch (Throwable t) {
             t.printStackTrace();
         }
@@ -54,13 +59,7 @@ public class TMScheduleTest {
 		Member mem;  
 		
 //		mem = new Member ("Robyne", "Vaughn");
-//		mem.setNumberOfSpeeches(3);
-//		mem.setNumberOfEvaluations(3);
-//		mem.setNumberOfMeetingsAttended(6);
-//		mem.setNumberTimesAsGeneralEvaluator(0);
-//		mem.addPreviousRole("Grammarian");
 //		memberList.add(mem);
-
 		
 		mem = new Member ("Andy", "Gerron");
 		memberList.add(mem);
@@ -94,47 +93,4 @@ public class TMScheduleTest {
 		
 		return memberList;
 	}
-	
-	private static ArrayList<Schedule> getPastSchedules() {
-		final ArrayList<Schedule> schedules = new ArrayList<Schedule>();
-		
-		MongoClient mongoClient = new MongoClient();
-		MongoDatabase db = mongoClient.getDatabase("julian");
-
-		FindIterable<Document> iterable = db.getCollection("tmschedule").find();
-		
-		iterable.forEach(new Block<Document>() {
-			public void apply(final Document document) {
-				Schedule schedule = new Schedule(document.getDate("meeting date"));
-				
-				if (document.getString("toastmaster") != null)
-					schedule.setToastmaster(new Member (document.getString("toastmaster")));
-				if (document.getString("general evaluator") != null)
-					schedule.setGeneralEvaluator(new Member (document.getString("general evaluator")));
-				if (document.getString("topic master") != null)
-					schedule.setTopicMaster(new Member (document.getString("topic master")));
-				if (document.getString("speaker one") != null)
-					schedule.setSpeakerOne(new Member (document.getString("speaker one")));
-				if (document.getString("evaluator one") != null)
-					schedule.setEvaluatorOne(new Member (document.getString("evaluator one")));
-				if (document.getString("speaker two") != null)
-					schedule.setSpeakerTwo(new Member (document.getString("speaker two")));
-				if (document.getString("evaluator two") != null)
-					schedule.setEvaluatorTwo(new Member (document.getString("evaluator two")));
-				if (document.getString("grammarian") != null)
-					schedule.setGrammarian(new Member (document.getString("grammarian")));
-				if (document.getString("ah counter") != null)
-					schedule.setAhCounter(new Member (document.getString("ah counter")));
-				if (document.getString("timer") != null)
-					schedule.setTimer(new Member (document.getString("timer")));
-				
-				schedules.add(schedule);
-	        
-		        schedule.printSchedule();
-		    }
-		});
-		
-		return schedules; 
-	}
-
 }

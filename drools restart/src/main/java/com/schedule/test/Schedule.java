@@ -32,15 +32,6 @@ public class Schedule {
 		}
 	}
 	
-//	public boolean memberNotAssigned(Member member) {
-//		boolean assigned = false;
-//		
-//		if (toastmaster != null && member.getName().equals(toastmaster.getName())) return true;
-//		if (generalEvaluator != null && member.getName().equals(generalEvaluator.getName())) return true;
-//		
-//		return assigned; 
-//	}
-	
 	public boolean memberAlreadyAssigned (Member member) {	
 		if (toastmaster == member) return true;
 		if (generalEvaluator == member) return true;

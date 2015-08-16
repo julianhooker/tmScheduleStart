@@ -7,7 +7,7 @@ import com.schedule.test.Schedule;
 //declare any global variables here
 
 rule "Assign a Toastmaster"
-
+	salience(100)
     when
     	$member : Member (speechesCount > 1,
     		generalEvaluatorCount > 1,
@@ -21,6 +21,7 @@ rule "Assign a Toastmaster"
 end
 
 rule "Assign a General Evaluator"
+	salience(75)
     when
         $member : Member(evaluatorCount > 3,
         	recentlyServedInRole("General Evaluator") != true)
@@ -32,6 +33,7 @@ rule "Assign a General Evaluator"
 end
 
 rule "Assign a Topics Master"
+	salience(50)
 	when
 		$member : Member (recentlyServedInRole("TopicMaster") != true,
 			getSpeechesCount() > 1)
@@ -43,6 +45,7 @@ rule "Assign a Topics Master"
 end
 
 rule "Assign Speaker 1"
+	salience(75)
 	when
 		$member : Member (recentlyServedInRole("Speaker") != true)
 		$schedule : Schedule (speakerOne == null,
@@ -53,6 +56,7 @@ rule "Assign Speaker 1"
 end
 
 rule "Assign Evaluator 1"
+	salience(50)
 	when
 		$member : Member(speechesCount > 3,
 			recentlyServedInRole("Evaluator") != true)
@@ -64,6 +68,7 @@ rule "Assign Evaluator 1"
 end
 
 rule "Assign Speaker 2"
+	salience(75)
 	when
 		$member : Member (recentlyServedInRole("Speaker") != true)
 		$schedule : Schedule (speakerTwo == null,
@@ -74,6 +79,7 @@ rule "Assign Speaker 2"
 end
 
 rule "Assign Evaluator 2"
+	salience(50)
 	when
 		$member : Member(speechesCount > 3,
 			recentlyServedInRole("Evaluator") != true)
@@ -91,7 +97,7 @@ rule "Assign a Grammarian"
 			memberAlreadyAssigned($member) == false)
 	then
 		modify ($schedule) { setGrammarian($member) };
-		modify ($member) { addPreviousRole("Grammarian") };
+//		modify ($member) { addPreviousRole("Grammarian") };
 end
 
 rule "Assign a Timer"
@@ -101,7 +107,7 @@ rule "Assign a Timer"
 			memberAlreadyAssigned($member) == false)
 	then
 		modify ($schedule) { setTimer($member) };
-		modify ($member) { addPreviousRole("Timer") };
+//		modify ($member) { addPreviousRole("Timer") };
 end
 
 rule "Assign ahcounter"
@@ -111,5 +117,5 @@ rule "Assign ahcounter"
 			memberAlreadyAssigned($member) == false)
 	then
 		modify ($schedule) { setAhCounter($member) };
-		modify ($member) { addPreviousRole("Ah Counter") };
+//		modify ($member) { addPreviousRole("Ah Counter") };
 end

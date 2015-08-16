@@ -22,6 +22,7 @@ public class Member {
 	private String firstName;
 	private String lastName;
 
+	// counts for each working position
 	private int generalEvaluatorCount = 0;
 	private int topicMasterCount = 0;
 	private int speechesCount = 0;
@@ -30,8 +31,10 @@ public class Member {
 	private int ahCounterCount = 0;
 	private int timerCount = 0;
 	
+	// what has the member worked recently
 	private ArrayList<String> previousRole = new ArrayList<String> ();
 	
+	// Has this member recently served in a role?
 	public boolean recentlyServedInRole (String role) {
 		boolean served = false;
 		
@@ -40,10 +43,12 @@ public class Member {
 		return served;
 	}
 	
+	// Add a role to the list of roles this member has worked
 	public void addPreviousRole (String role) {
 		
 		previousRole.add(role);
 		
+		// We will only look at the previous 3 roles
 		if (previousRole.size() > 3) {
 			previousRole.remove(0);
 		} 
@@ -55,22 +60,23 @@ public class Member {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		
-		//if (this.getFirstName().equals("Julian"))
-			getServiceNumbers ();
+		getServiceNumbers ();
 	}
 	
 	public Member (String fullname) {
 		this.firstName = fullname.substring(0, fullname.indexOf(" ")).trim();
 		this.lastName = fullname.substring(fullname.indexOf(" "), fullname.length()).trim();
 		
-		//if (this.getFirstName().equals("Julian"))
-			getServiceNumbers ();
+		getServiceNumbers ();
 	}
 	
 	private void getServiceNumbers () {
+		
+		// Connect to the database
 		MongoClient mongoClient = new MongoClient("localhost", 27017);
 		MongoDatabase db = mongoClient.getDatabase("julian");
 		
+		// Look for the number of times each member has served as a working member 
 		AggregateIterable<Document> iterable;
 		
 		// Number of times as General Evaluator
@@ -136,16 +142,11 @@ public class Member {
 		if (iterable.first() != null)
 			this.timerCount = iterable.first().getInteger("count");
 		
-		//MongoCollection<Document> collection = db.getCollection("tmschedule");
-
-		MongoCollection<Document> collection = MongoClientProvider.getCollection();
-		
 		// Now look at the previous jobs worked by this guy, but we are only going to look at the last 3 weeks
+		MongoCollection<Document> collection = MongoClientProvider.getCollection();
 		LocalDate ld = LocalDate.now().minusWeeks(3);
 		Instant instant = ld.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
 		Date date = Date.from(instant);
-		
-		System.out.println(date);
 				
 		// Now, we need to look at the previous working positions
 
@@ -218,8 +219,6 @@ public class Member {
 		if (cursor.hasNext()) this.addPreviousRole("timer");
 	
 //		mongoClient.close();
-		
-		System.out.println("End member " + this.getName());
 	}
 	
 	// Getters and setters
