@@ -1,7 +1,5 @@
 package com.schedule.test;
 
-import mongo.MongoClientProvider;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -10,7 +8,6 @@ import java.util.Date;
 
 import org.bson.Document;
 
-import com.mongodb.MongoClient;
 import com.mongodb.client.AggregateIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -21,6 +18,8 @@ import static java.util.Arrays.asList;
 public class Member {
 	private String firstName;
 	private String lastName;
+	
+	private MongoDatabase db; 
 
 	// counts for each working position
 	private int generalEvaluatorCount = 0;
@@ -56,26 +55,15 @@ public class Member {
 
 	// Constructors
 	
-	public Member (String firstName, String lastName) {
+	public Member (String firstName, String lastName, MongoDatabase db) {
+		this.db = db;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		
 		getServiceNumbers ();
 	}
 	
-	public Member (String fullname) {
-		this.firstName = fullname.substring(0, fullname.indexOf(" ")).trim();
-		this.lastName = fullname.substring(fullname.indexOf(" "), fullname.length()).trim();
-		
-		getServiceNumbers ();
-	}
-	
 	private void getServiceNumbers () {
-		
-		// Connect to the database
-		MongoClient mongoClient = new MongoClient("localhost", 27017);
-		MongoDatabase db = mongoClient.getDatabase("julian");
-		
 		// Look for the number of times each member has served as a working member 
 		AggregateIterable<Document> iterable;
 		
@@ -142,8 +130,8 @@ public class Member {
 		if (iterable.first() != null)
 			this.timerCount = iterable.first().getInteger("count");
 		
-		// Now look at the previous jobs worked by this guy, but we are only going to look at the last 3 weeks
-		MongoCollection<Document> collection = MongoClientProvider.getCollection();
+		// Now look at the previous jobs worked by this guy, but we are only going to look at the last 3 weeks		
+		MongoCollection<Document> collection = db.getCollection("tmschedule");
 		LocalDate ld = LocalDate.now().minusWeeks(3);
 		Instant instant = ld.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
 		Date date = Date.from(instant);

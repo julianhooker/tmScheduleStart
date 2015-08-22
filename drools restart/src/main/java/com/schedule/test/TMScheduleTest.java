@@ -9,6 +9,9 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 
+import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
+
 public class TMScheduleTest {
 	
 	public static final void main(String[] args) {
@@ -17,11 +20,15 @@ public class TMScheduleTest {
         	KieServices kieServices = KieServices.Factory.get();
         	KieContainer kContainer = kieServices.getKieClasspathContainer();
         	
+        	// Connect to the database
+    		MongoClient mongoClient = new MongoClient("localhost", 27017);
+    		MongoDatabase db = mongoClient.getDatabase("julian");
+        	
         	// Create a collection of new schedules
         	ArrayList<Schedule> schedules = new ArrayList<Schedule> ();
         	
         	// Get a list of members
-        	ArrayList<Member> members = getMembers();
+        	ArrayList<Member> members = getMembers(db);
         	
         	// Loop through a date range
         	for (LocalDate ld = LocalDate.of(2015, 8, 12); ld.isBefore(LocalDate.of(2015, 10, 31)); ld = ld.plusWeeks(1)) {
@@ -48,47 +55,49 @@ public class TMScheduleTest {
         	}
         	
         	schedules.forEach(schedule -> schedule.printSchedule());
+        	
+        	mongoClient.close();
         } catch (Throwable t) {
             t.printStackTrace();
         }
     }
 	
-	private static ArrayList<Member> getMembers() {
+	private static ArrayList<Member> getMembers(MongoDatabase db) {
 		ArrayList<Member> memberList = new ArrayList<Member>();
 		
 		Member mem;  
 		
-//		mem = new Member ("Robyne", "Vaughn");
+//		mem = new Member ("Robyne", "Vaughn", db);
 //		memberList.add(mem);
 		
-		mem = new Member ("Andy", "Gerron");
+		mem = new Member ("Andy", "Gerron", db);
 		memberList.add(mem);
 
-		mem = new Member ("Julian", "Hooker");
+		mem = new Member ("Julian", "Hooker", db);
 		memberList.add(mem);
 		
-		mem = new Member ("Jason", "Davis");
+		mem = new Member ("Jason", "Davis", db);
 		memberList.add(mem);
 		
-		mem = new Member ("Gary", "Mims");
+		mem = new Member ("Gary", "Mims", db);
 		memberList.add(mem);
 		
-		mem = new Member ("Gary", "Johnson");
+		mem = new Member ("Gary", "Johnson", db);
 		memberList.add(mem);
 		
-//		mem = new Member ("Tedd", "Fargason");
+//		mem = new Member ("Tedd", "Fargason", db);
 //		memberList.add(mem);
 		
-		mem = new Member ("Spenser", "Piercy");
+		mem = new Member ("Spenser", "Piercy", db);
 		memberList.add(mem);
 		
-		mem = new Member ("Edd", "Dallashaw");
+		mem = new Member ("Edd", "Dallishaw", db);
 		memberList.add(mem);
 		
-		mem = new Member ("Darrell", "Bateman");
+		mem = new Member ("Darrell", "Bateman", db);
 		memberList.add(mem);
 
-		mem = new Member ("Glenn", "Lowrance");
+		mem = new Member ("Glenn", "Lowrance", db);
 		memberList.add(mem);
 		
 		return memberList;
