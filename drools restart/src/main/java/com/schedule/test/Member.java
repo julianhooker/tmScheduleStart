@@ -131,16 +131,15 @@ public class Member {
 			this.timerCount = iterable.first().getInteger("count");
 		
 		// Now look at the previous jobs worked by this guy, but we are only going to look at the last 3 weeks		
-		MongoCollection<Document> collection = db.getCollection("tmschedule");
 		LocalDate ld = LocalDate.now().minusWeeks(3);
 		Instant instant = ld.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant();
 		Date date = Date.from(instant);
 				
 		// Now, we need to look at the previous working positions
-
-		MongoCursor<Document> cursor;  
 		
 		// Check for the roles
+		MongoCursor<Document> cursor;  
+		MongoCollection<Document> collection = db.getCollection("tmschedule");
 		
 		// Toastmaster
 		cursor = collection.find(
@@ -205,8 +204,10 @@ public class Member {
 				).iterator();
 		
 		if (cursor.hasNext()) this.addPreviousRole("timer");
-	
-//		mongoClient.close();
+		
+		if (this.getName().equals("Edd Dillashaw"))
+		System.out.println();
+		
 	}
 	
 	// Getters and setters

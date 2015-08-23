@@ -4,8 +4,14 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static java.util.Arrays.asList;
+
+import org.bson.Document;
+
+import com.mongodb.client.MongoDatabase;
+
 public class Schedule {
-	private Date meetingTime;
+	private Date meetingDate;
 	private Member toastmaster;
 	private Member generalEvaluator;
 	private Member topicMaster;
@@ -17,21 +23,26 @@ public class Schedule {
 	private Member ahCounter;
 	private Member timer;
 	
+	private MongoDatabase db;
+	
 	private SimpleDateFormat sdf = new SimpleDateFormat ("M/dd/yyyy");
 	
-	public Schedule (Date meetingTime) {
-		this.meetingTime = meetingTime; 
-	}
+//	public Schedule (Date meetingTime) {
+//		this.meetingTime = meetingTime; 
+//	}
 	
-	public Schedule (String meetingTime) {
+	public Schedule (String meetingTime, MongoDatabase db) {
+		this.db = db; 
+		
 		try {
-			this.meetingTime = sdf.parse(meetingTime);
+			this.meetingDate = sdf.parse(meetingTime);
 		} catch (ParseException e) {
 			System.out.println ("Cannot convert meeting time to date.");
 			e.printStackTrace();
 		}
 	}
 	
+	// Used by the rules engine to see if a member is assigned
 	public boolean memberAlreadyAssigned (Member member) {	
 		if (toastmaster == member) return true;
 		if (generalEvaluator == member) return true;
@@ -46,37 +57,7 @@ public class Schedule {
 		
 		return false;
 	}
-//	
-//	public String getAssignment (Member member) {
-//		String memberName = member.getName();
-//		
-//		if (memberName.equals(toastmaster.getName())) return "Toastmaster";
-//		if (memberName.equals(generalEvaluator.getName())) return "General Evaluator";
-//		if (memberName.equals(topicMaster.getName())) return "Topic Master"; 
-//		if (memberName.equals(speakerOne.getName())) return "Speaker";
-//		if (memberName.equals(evaluatorOne.getName())) return "Evaluator";
-//		if (memberName.equals(speakerTwo.getName())) return "Speaker";
-//		if (memberName.equals(evaluatorTwo.getName())) return "Evaluator";
-//		if (memberName.equals(grammarian.getName())) return "Grammarian";
-//		if (memberName.equals(ahCounter.getName())) return "Ah Counter";
-//		if (memberName.equals(timer.getName())) return "Timer";
-//		
-//		return null; 
-//	}
-	
-//	public void clearSchedule() {
-//		this.ahCounter = null;
-//		this.evaluatorOne = null; 
-//		this.evaluatorTwo = null;
-//		this.generalEvaluator = null;
-//		this.grammarian = null;
-//		this.speakerOne = null;
-//		this.speakerTwo = null;
-//		this.timer = null;
-//		this.toastmaster = null;
-//		this.topicMaster = null;
-//	}
-	
+
 	public void printSchedule() {
 		System.out.println ("\nSchedule for " + this.getMeetingTime());
 		
@@ -129,11 +110,66 @@ public class Schedule {
 			System.out.println("Timer: " + timer.getName());
 		else
 			System.out.println("Timer: ** unassigned **");
-
+	}
+	
+	public void saveSchedule(MongoDatabase db) {
+		Document schedule = new Document ();
+		
+		try {
+			schedule.append("meeting date", sdf.parse(sdf.format(this.meetingDate)));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		
+		// Add the working positions to the document
+		if (this.toastmaster != null) schedule.append("toastmaster", this.getToastmaster().getName());
+		if (this.generalEvaluator != null) schedule.append("general evaluator", this.getGeneralEvaluator().getName());
+		if (this.topicMaster != null) schedule.append("topic master", this.getTopicMaster().getName());
+		
+		// Add the speakers to the document
+		Document speakerOne; 
+		if (this.speakerOne != null) {
+			speakerOne = new Document().append("name", this.getSpeakerOne().getName());
+		} else {
+			speakerOne = new Document();
+		}
+		
+		Document speakerTwo;
+		if (this.speakerTwo != null) {
+			speakerTwo = new Document().append("name", this.getSpeakerTwo().getName());
+		} else {
+			speakerTwo = new Document();
+		}
+		
+		schedule.append("speaker", asList(speakerOne, speakerTwo));
+		
+		// Add the evaluators to the document
+		Document evaluatorOne;
+		if (this.evaluatorOne != null) {
+			evaluatorOne = new Document().append("name", this.getEvaluatorOne().getName());
+		} else {
+			evaluatorOne = new Document();
+		}
+		
+		Document evaluatorTwo;
+		if (this.evaluatorTwo != null) {
+			evaluatorTwo = new Document().append("name", this.getEvaluatorTwo().getName());
+		} else {
+			evaluatorTwo = new Document();
+		}
+		
+		schedule.append("evaluator", asList(evaluatorOne, evaluatorTwo));
+		
+		// Add the rest of the working positions
+		if (this.grammarian != null) schedule.append("grammarian", this.getGrammarian().getName());
+		if (this.ahCounter != null) schedule.append("ah counter", this.getAhCounter().getName());
+		if (this.timer != null) schedule.append("timer", this.getTimer().getName());
+		
+		db.getCollection("tmschedule").insertOne(schedule);
 	}
 	
 	public String getMeetingTime() {
-		return sdf.format(meetingTime);
+		return sdf.format(meetingDate);
 	}
 	public Member getToastmaster() {
 		return toastmaster;
