@@ -1,8 +1,8 @@
 //created on: Jun 7, 2015
-package com.schedule.test
+package com.tmschedule
 
-import com.schedule.test.Member;
-import com.schedule.test.Schedule;
+import com.tmschedule.member.Member;
+import com.tmschedule.schedule.Schedule;
 
 //declare any global variables here
 
@@ -97,7 +97,6 @@ rule "Assign a Grammarian"
 			memberAlreadyAssigned($member) == false)
 	then
 		modify ($schedule) { setGrammarian($member) };
-//		modify ($member) { addPreviousRole("Grammarian") };
 end
 
 rule "Assign a Timer"
@@ -107,7 +106,6 @@ rule "Assign a Timer"
 			memberAlreadyAssigned($member) == false)
 	then
 		modify ($schedule) { setTimer($member) };
-//		modify ($member) { addPreviousRole("Timer") };
 end
 
 rule "Assign ahcounter"
@@ -117,5 +115,4 @@ rule "Assign ahcounter"
 			memberAlreadyAssigned($member) == false)
 	then
 		modify ($schedule) { setAhCounter($member) };
-//		modify ($member) { addPreviousRole("Ah Counter") };
 end

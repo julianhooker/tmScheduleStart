@@ -1,4 +1,4 @@
-package com.schedule.test;
+package com.tmschedule.member;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -15,7 +15,7 @@ import com.mongodb.client.MongoDatabase;
 
 import static java.util.Arrays.asList;
 
-import com.schedule.database.MongoInstance;;
+import com.tmschedule.database.MongoInstance;
 
 public class Member {
 	private String firstName;

@@ -1,4 +1,4 @@
-package com.schedule.database;
+package com.tmschedule.database;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;

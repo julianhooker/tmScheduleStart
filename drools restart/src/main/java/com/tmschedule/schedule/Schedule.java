@@ -1,4 +1,4 @@
-package com.schedule.test;
+package com.tmschedule.schedule;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,7 +9,8 @@ import static java.util.Arrays.asList;
 import org.bson.Document;
 
 import com.mongodb.client.MongoDatabase;
-import com.schedule.database.MongoInstance;
+import com.tmschedule.database.MongoInstance;
+import com.tmschedule.member.Member;
 
 public class Schedule {
 	private Date meetingDate;

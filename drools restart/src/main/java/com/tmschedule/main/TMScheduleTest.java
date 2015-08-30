@@ -1,4 +1,4 @@
-package com.schedule.test;
+package com.tmschedule.main;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -10,8 +10,9 @@ import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 
 import com.mongodb.client.MongoDatabase;
-
-import com.schedule.database.MongoInstance;
+import com.tmschedule.database.MongoInstance;
+import com.tmschedule.member.Member;
+import com.tmschedule.schedule.Schedule;
 
 public class TMScheduleTest {
 	
@@ -48,7 +49,7 @@ public class TMScheduleTest {
         	schedules.add(schedule);
     	}
     	
-    	schedules.forEach(schedule -> schedule.saveSchedule());
+//    	schedules.forEach(schedule -> schedule.saveSchedule());
     	
     	schedules.forEach(schedule -> schedule.printSchedule());
     }
