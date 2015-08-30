@@ -69,7 +69,7 @@ public class Member {
 		MongoDatabase db = MongoInstance.getDB();
 		
 		// Number of times as General Evaluator
-		iterable = db.getCollection("tmschedule").aggregate(asList(
+		iterable = db.getCollection("schedule").aggregate(asList(
 		        new Document("$match", new Document("general evaluator", this.getName())),
 		        new Document("$group", new Document("_id", "$general evaluator").append("count", new Document("$sum", 1)))
 		        ));
@@ -78,7 +78,7 @@ public class Member {
 			this.generalEvaluatorCount = iterable.first().getInteger("count");
 		
 		// Number of times as Topics Master
-		iterable = db.getCollection("tmschedule").aggregate(asList(
+		iterable = db.getCollection("schedule").aggregate(asList(
 		        new Document("$match", new Document("topic master", this.getName())),
 		        new Document("$group", new Document("_id", "$id").append("count", new Document("$sum", 1)))
 		        ));
@@ -87,7 +87,7 @@ public class Member {
 			this.topicMasterCount = iterable.first().getInteger("count");
 		
 		// Number of times as a Speaker
-		iterable = db.getCollection("tmschedule").aggregate(asList(
+		iterable = db.getCollection("schedule").aggregate(asList(
 				new Document("$match", new Document("speaker.name", this.getName())),
 				new Document("$group", new Document("_id", "$id").append("count", new Document ("$sum", 1)))
 				));
@@ -96,7 +96,7 @@ public class Member {
 			this.speechesCount = iterable.first().getInteger("count");
 		
 		// Number of times as an Evaluator
-		iterable = db.getCollection("tmschedule").aggregate(asList(
+		iterable = db.getCollection("schedule").aggregate(asList(
 				new Document("$match", new Document("evaluator.name", this.getName())),
 				new Document("$group", new Document("_id", "$id").append("count", new Document ("$sum", 1)))
 				));
@@ -105,7 +105,7 @@ public class Member {
 			this.evaluatorCount = iterable.first().getInteger("count");
 
 		// Number of times as a Grammarian
-		iterable = db.getCollection("tmschedule").aggregate(asList(
+		iterable = db.getCollection("schedule").aggregate(asList(
 				new Document("$match", new Document("grammarian", this.getName())),
 				new Document("$group", new Document("_id", "$grammarian").append("count", new Document ("$sum", 1)))
 				));
@@ -114,7 +114,7 @@ public class Member {
 			this.grammarianCount = iterable.first().getInteger("count");
 
 		// Number of times as an Ah Counter
-		iterable = db.getCollection("tmschedule").aggregate(asList(
+		iterable = db.getCollection("schedule").aggregate(asList(
 				new Document("$match", new Document("ah counter", this.getName())),
 				new Document("$group", new Document("_id", "$ah counter").append("count", new Document ("$sum", 1)))
 				));
@@ -123,7 +123,7 @@ public class Member {
 			this.ahCounterCount = iterable.first().getInteger("count");
 
 		// Number of times as a Timer
-		iterable = db.getCollection("tmschedule").aggregate(asList(
+		iterable = db.getCollection("schedule").aggregate(asList(
 				new Document("$match", new Document("timer", this.getName())),
 				new Document("$group", new Document("_id", "$timer").append("count", new Document ("$sum", 1)))
 				));
@@ -140,7 +140,7 @@ public class Member {
 		
 		// Check for the roles
 		MongoCursor<Document> cursor;  
-		MongoCollection<Document> collection = db.getCollection("tmschedule");
+		MongoCollection<Document> collection = db.getCollection("schedule");
 		
 		// Toastmaster
 		cursor = collection.find(

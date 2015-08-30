@@ -161,7 +161,7 @@ public class Schedule {
 		if (this.ahCounter != null) schedule.append("ah counter", this.getAhCounter().getName());
 		if (this.timer != null) schedule.append("timer", this.getTimer().getName());
 		
-		db.getCollection("tmschedule").insertOne(schedule);
+		db.getCollection("schedule").insertOne(schedule);
 	}
 	
 	public String getMeetingTime() {
