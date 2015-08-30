@@ -9,6 +9,7 @@ import static java.util.Arrays.asList;
 import org.bson.Document;
 
 import com.mongodb.client.MongoDatabase;
+import com.schedule.database.MongoInstance;
 
 public class Schedule {
 	private Date meetingDate;
@@ -23,17 +24,9 @@ public class Schedule {
 	private Member ahCounter;
 	private Member timer;
 	
-	private MongoDatabase db;
-	
 	private SimpleDateFormat sdf = new SimpleDateFormat ("M/dd/yyyy");
 	
-//	public Schedule (Date meetingTime) {
-//		this.meetingTime = meetingTime; 
-//	}
-	
-	public Schedule (String meetingTime, MongoDatabase db) {
-		this.db = db; 
-		
+	public Schedule (String meetingTime) {		
 		try {
 			this.meetingDate = sdf.parse(meetingTime);
 		} catch (ParseException e) {
@@ -112,7 +105,9 @@ public class Schedule {
 			System.out.println("Timer: ** unassigned **");
 	}
 	
-	public void saveSchedule(MongoDatabase db) {
+	public void saveSchedule() {
+		MongoDatabase db = MongoInstance.getDB();
+		
 		Document schedule = new Document ();
 		
 		try {

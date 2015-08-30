@@ -15,11 +15,11 @@ import com.mongodb.client.MongoDatabase;
 
 import static java.util.Arrays.asList;
 
+import com.schedule.database.MongoInstance;;
+
 public class Member {
 	private String firstName;
 	private String lastName;
-	
-	private MongoDatabase db; 
 
 	// counts for each working position
 	private int generalEvaluatorCount = 0;
@@ -55,17 +55,18 @@ public class Member {
 
 	// Constructors
 	
-	public Member (String firstName, String lastName, MongoDatabase db) {
-		this.db = db;
+	public Member (String firstName, String lastName) {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		
 		getServiceNumbers ();
 	}
-	
+
 	private void getServiceNumbers () {
 		// Look for the number of times each member has served as a working member 
 		AggregateIterable<Document> iterable;
+		
+		MongoDatabase db = MongoInstance.getDB();
 		
 		// Number of times as General Evaluator
 		iterable = db.getCollection("tmschedule").aggregate(asList(

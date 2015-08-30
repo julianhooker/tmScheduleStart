@@ -9,23 +9,18 @@ import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 
-import com.mongodb.MongoClient;
 import com.mongodb.client.MongoDatabase;
+
+import com.schedule.database.MongoInstance;
 
 public class TMScheduleTest {
 	
-	public static final void main(String[] args) {
-    	// Connect to the database
-		MongoClient mongoClient = new MongoClient("localhost", 27017);
-		MongoDatabase db = mongoClient.getDatabase("julian");
-		
+	public static final void main(String[] args) {		
 		KieServices kieServices = KieServices.Factory.get();
     	KieContainer kContainer = kieServices.getKieClasspathContainer();
     	
     	// Create a collection of new schedules
     	ArrayList<Schedule> schedules = new ArrayList<Schedule> ();
- 		
-    	
     	
     	// Loop through a date range
     	for (LocalDate ld = LocalDate.of(2015, 9, 2); ld.isBefore(LocalDate.of(2015, 10, 1)); ld = ld.plusWeeks(1)) {
@@ -33,11 +28,11 @@ public class TMScheduleTest {
     		KieSession ksession = kContainer.newKieSession("ksession-rules");
     		
     		// Create a schedule for this date and add it to the rules space
-    		Schedule schedule = new Schedule (ld.format(DateTimeFormatter.ofPattern("M/dd/yyyy")), db);
+    		Schedule schedule = new Schedule (ld.format(DateTimeFormatter.ofPattern("M/dd/yyyy")));
     		ksession.insert(schedule);
     		
     		// Get a list of members
-        	ArrayList<Member> members = getMembers(db);
+        	ArrayList<Member> members = getMembers(MongoInstance.getDB());
     		
     		// Randomize the members and add them to the KIE session
         	Collections.shuffle(members);
@@ -53,11 +48,9 @@ public class TMScheduleTest {
         	schedules.add(schedule);
     	}
     	
- //   	schedules.forEach(schedule -> schedule.saveSchedule(db));
+    	schedules.forEach(schedule -> schedule.saveSchedule());
     	
     	schedules.forEach(schedule -> schedule.printSchedule());
-    	
-    	mongoClient.close();
     }
 	
 	private static ArrayList<Member> getMembers(MongoDatabase db) {
@@ -65,37 +58,37 @@ public class TMScheduleTest {
 		
 		Member mem;  
 		
-//		mem = new Member ("Robyne", "Vaughn", db);
+//		mem = new Member ("Robyne", "Vaughn");
 //		memberList.add(mem);
 		
-		mem = new Member ("Andy", "Gerron", db);
+		mem = new Member ("Andy", "Gerron");
 		memberList.add(mem);
 
-		mem = new Member ("Julian", "Hooker", db);
+		mem = new Member ("Julian", "Hooker");
 		memberList.add(mem);
 		
-		mem = new Member ("Jason", "Davis", db);
+		mem = new Member ("Jason", "Davis");
 		memberList.add(mem);
 		
-		mem = new Member ("Gary", "Mims", db);
+		mem = new Member ("Gary", "Mims");
 		memberList.add(mem);
 		
-		mem = new Member ("Gary", "Johnson", db);
+		mem = new Member ("Gary", "Johnson");
 		memberList.add(mem);
 		
-//		mem = new Member ("Tedd", "Fargason", db);
+//		mem = new Member ("Tedd", "Fargason");
 //		memberList.add(mem);
 		
-		mem = new Member ("Spenser", "Piercy", db);
+		mem = new Member ("Spenser", "Piercy");
 		memberList.add(mem);
 		
-		mem = new Member ("Edd", "Dallishaw", db);
+		mem = new Member ("Edd", "Dallishaw");
 		memberList.add(mem);
 		
-		mem = new Member ("Darrell", "Bateman", db);
+		mem = new Member ("Darrell", "Bateman");
 		memberList.add(mem);
 
-		mem = new Member ("Glenn", "Lowrance", db);
+		mem = new Member ("Glenn", "Lowrance");
 		memberList.add(mem);
 		
 		return memberList;
