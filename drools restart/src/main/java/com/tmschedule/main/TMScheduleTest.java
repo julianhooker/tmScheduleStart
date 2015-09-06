@@ -5,16 +5,12 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import org.bson.Document;
 import org.kie.api.KieServices;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.KieSession;
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
-import com.mongodb.client.MongoDatabase;
-import com.tmschedule.database.MongoInstance;
-import com.tmschedule.member.Member;
+import com.tmschedule.member.MemberUtils;
+import com.tmschedule.member.User;
 import com.tmschedule.schedule.Schedule;
 
 public class TMScheduleTest {
@@ -27,7 +23,7 @@ public class TMScheduleTest {
     	ArrayList<Schedule> schedules = new ArrayList<Schedule> ();
     	
 		// Get a list of members
-    	ArrayList<Member> members = getMembers();
+    	ArrayList<User> members = MemberUtils.getActiveMembers();
     	
     	// Loop through a date range
     	for (LocalDate ld = LocalDate.of(2015, 9, 2); ld.isBefore(LocalDate.of(2015, 12, 1)); ld = ld.plusWeeks(1)) {
@@ -41,7 +37,7 @@ public class TMScheduleTest {
     		// Randomize the members and add them to the KIE session
         	Collections.shuffle(members);
       
-        	for (Member m: members) {
+        	for (User m: members) {
         		ksession.insert(m);
         	}
     		
@@ -56,24 +52,4 @@ public class TMScheduleTest {
     	
     	schedules.forEach(schedule -> schedule.printSchedule());
     }
-	
-	private static ArrayList<Member> getMembers() {
-		ArrayList<Member> memberList = new ArrayList<Member>();		
-		
-		MongoCursor<Document> cursor = MongoInstance.getDB().getCollection("members")
-				.find(new Document ("active", "true")).iterator();
-		try {
-		    while (cursor.hasNext()) {
-		        Document doc = cursor.next();
-		        
-		        memberList.add(new Member(
-		        		doc.getString("first name"), 
-		        		doc.getString("last name")));
-		    }
-		} finally {
-		    cursor.close();
-		}
-		
-		return memberList;
-	}
 }

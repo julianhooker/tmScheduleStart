@@ -17,7 +17,7 @@ import static java.util.Arrays.asList;
 
 import com.tmschedule.database.MongoInstance;
 
-public class Member {
+public class Member implements User{
 	private String firstName;
 	private String lastName;
 
@@ -32,7 +32,16 @@ public class Member {
 	
 	// what has the member worked recently
 	private ArrayList<String> previousRole = new ArrayList<String> ();
+
+	// Constructors
 	
+	public Member (String firstName, String lastName) {
+		this.firstName = firstName;
+		this.lastName = lastName;
+		
+		getServiceNumbers ();
+	}
+
 	// Has this member recently served in a role?
 	public boolean recentlyServedInRole (String role) {
 		boolean served = false;
@@ -52,16 +61,7 @@ public class Member {
 			previousRole.remove(0);
 		} 
 	}
-
-	// Constructors
 	
-	public Member (String firstName, String lastName) {
-		this.firstName = firstName;
-		this.lastName = lastName;
-		
-		getServiceNumbers ();
-	}
-
 	private void getServiceNumbers () {
 		// Look for the number of times each member has served as a working member 
 		AggregateIterable<Document> iterable;
@@ -213,22 +213,27 @@ public class Member {
 	
 	// Getters and setters
 
+	@Override 
 	public String getFirstName() {
 		return firstName;
 	}
 
+	@Override
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
 	}
 
+	@Override
 	public String getLastName() {
 		return lastName;
 	}
 
+	@Override
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}
 
+	@Override
 	public String getName () {
 		return this.getFirstName() + " " + this.getLastName();
 	}
